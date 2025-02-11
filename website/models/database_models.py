@@ -58,7 +58,8 @@ class Sched_fees (db.Model):
 
 class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    time_in = db.Column(db.DateTime,nullable=False)
+    time_in = db.Column(db.DateTime,nullable=True)
+    time_out = db.Column(db.DateTime,nullable=True)
     activity_id = db.Column(db.Integer, db.ForeignKey('sched_activities.id'), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
  #------------------------  

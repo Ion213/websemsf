@@ -173,6 +173,7 @@ $(document).ready(function () {
             { data: 'student_name' },
             { data: 'departments' },
             { data: 'time_in' },
+            { data: 'time_out' },
             {
                 data: 'id',
                 render: function (data, type, row) {

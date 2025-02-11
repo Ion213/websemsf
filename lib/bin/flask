@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/home/ion/Desktop/Untitled Folder/WEBSEMS- commit beta/lib/bin/python3" "$0" "$@"
+'''exec' "/home/ion/Desktop/Untitled Folder/WEBSEMSF/lib/bin/python3" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re

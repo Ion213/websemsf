@@ -1,10 +1,21 @@
 $(document).ready(function(){
+    // Load sound effects
+    const successSound = new Audio('/static/sounds/success.mp3'); // Change path as needed
+    const failSound = new Audio('/static/sounds/invalid.mp3'); // Change path as needed
+
+    function playSound(sound) {
+        sound.pause();  // Stop the current playback
+        sound.currentTime = 0;  // Reset the audio to the beginning
+        sound.play();  // Play the sound
+    }
+
     const html5QrCode = new Html5Qrcode("reader");
     let selectedCameraId = null;
-    let isScanning = false; // Track scanner state
-    let scanCooldown = false; // Prevent multiple scans
+    let isScanningIn = false;
+    let isScanningOut = false;
+    let scanCooldown = false;
 
-    // Populate the camera dropdown
+    // Populate camera dropdown
     function populateCameraDropdown() {
         Html5Qrcode.getCameras().then(devices => {
             if (devices.length > 0) {
@@ -20,7 +31,7 @@ $(document).ready(function(){
         }).catch(err => console.error("Error fetching cameras:", err));
     }
 
-    // Fetch cameras when the page loads
+    // Fetch cameras on page load
     populateCameraDropdown();
 
     // Scanner configuration
@@ -34,33 +45,34 @@ $(document).ready(function(){
         },
     };
 
-        function showNotification(type, message) {
-            let notification = $(`
-                <div class="notification alert alert-${type}" style="
-                    display: inline-block;
-                    padding: 10px;
-                    margin-bottom: 5px;
-                    border-radius: 5px;
-                    box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
-                    background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
-                    color: ${type === 'success' ? '#155724' : '#721c24'};
-                    font-weight: bold;
-                ">
-                    ${message}
-                </div>
-            `);
-        
-            $("#notification-container").append(notification);
-        
-            setTimeout(() => {
-                notification.fadeOut(500, function() {
-                    $(this).remove();
-                });
-            }, 3000); // Disappear after 3 seconds
-        }
+    // Function to show notification
+    function showNotification(type, message) {
+        let notification = $(`
+            <div class="notification alert alert-${type}" style="
+                display: inline-block;
+                padding: 10px;
+                margin-bottom: 5px;
+                border-radius: 5px;
+                box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+                background: ${type === 'success' ? '#d4edda' : '#f8d7da'};
+                color: ${type === 'success' ? '#155724' : '#721c24'};
+                font-weight: bold;
+            ">
+                ${message}
+            </div>
+        `);
 
-    // QR scan success callback
-    const qrCodeSuccessCallback = (decodedText) => {
+        $("#notification-container").append(notification);
+
+        setTimeout(() => {
+            notification.fadeOut(500, function() {
+                $(this).remove();
+            });
+        }, 3000); // Disappear after 3 seconds
+    }
+
+    // Common scan callback
+    function handleQRCode(decodedText, scanType) {
         if (scanCooldown) return;
         
         let activity_Id = $("#activityComboBox").val();
@@ -72,63 +84,82 @@ $(document).ready(function(){
         scanCooldown = true; // Prevent multiple scans
         html5QrCode.pause(true, false); // Pause scanner
 
+        let url = scanType === 'IN'
+            ? `/add_attendeesQR_in/${activity_Id}/${decodedText}`
+            : `/add_attendeesQR_out/${activity_Id}/${decodedText}`;
+
         $.ajax({
             type: 'POST',
-            url: `/add_attendeesQR/${activity_Id}/${decodedText}`,
+            url: url,
             success: function(response) {
                 ongoing_attendance_table.ajax.reload(null, false);
                 showNotification(response.success ? 'success' : 'danger', response.message);
+                if (response.success) {
+                    playSound(successSound);// Play success sound
+                } else {
+                    playSound(failSound);  // Play fail sound
+                }
             },
             error: function(xhr) {
+                failSound.play()
                 showNotification('danger', 'An error occurred: ' + xhr.responseText);
             },
             complete: function() {
                 setTimeout(() => {
                     scanCooldown = false;
-                    html5QrCode.resume(); // Resume scanning after a delay
+                    html5QrCode.resume();
                 }, 1000);
             }
         });
-    };
+    }
 
     // Function to start scanner
-    function startScanner() {
+    function startScanner(scanType) {
         if (!selectedCameraId) {
             alert("No camera selected.");
             return;
         }
-        html5QrCode.start(selectedCameraId, config, qrCodeSuccessCallback)
-            .then(() => {
-                isScanning = true;
-                $("#scan-btn").text("Stop Scanning");
-            })
-            .catch(err => console.error("Unable to start scanning:", err));
+
+        let isScanning = scanType === 'IN' ? isScanningIn : isScanningOut;
+        let button = scanType === 'IN' ? $("#scan-btn-in") : $("#scan-btn-out");
+
+        if (!isScanning) {
+            html5QrCode.start(selectedCameraId, config, (decodedText) => handleQRCode(decodedText, scanType))
+                .then(() => {
+                    if (scanType === 'IN') isScanningIn = true;
+                    else isScanningOut = true;
+                    button.html('<i class="fa-regular fa-circle-stop"></i> Scanning...');
+                })
+                .catch(err => console.error("Unable to start scanning:", err));
+        }
     }
 
     // Function to stop scanner
-    function stopScanner() {
+    function stopScanner(scanType) {
+        let button = scanType === 'IN' ? $("#scan-btn-in") : $("#scan-btn-out");
+
         return html5QrCode.stop().then(() => {
-            isScanning = false;
-            $("#scan-btn").text("Start Scanning");
+            if (scanType === 'IN') isScanningIn = false;
+            else isScanningOut = false;
+            button.html(`<i class="fa-solid fa-camera"></i> ${scanType}`);
         }).catch(err => console.error("Error stopping scanner:", err));
     }
 
-    // Toggle scanner when clicking the button
-    $("#scan-btn").on("click", function () {
-        if (isScanning) {
-            stopScanner();
-        } else {
-            startScanner();
-        }
+    // Toggle scanner when clicking buttons
+    $("#scan-btn-in").on("click", function () {
+        if (isScanningIn) stopScanner('IN');
+        else startScanner('IN');
+    });
+
+    $("#scan-btn-out").on("click", function () {
+        if (isScanningOut) stopScanner('OUT');
+        else startScanner('OUT');
     });
 
     // Restart scanner when camera is changed
     $("#camera-select").on("change", function() {
         selectedCameraId = $(this).val();
-        if (isScanning) {
-            stopScanner().then(startScanner); // Restart scanner with the new camera
-        }
+        if (isScanningIn) stopScanner('IN').then(() => startScanner('IN'));
+        if (isScanningOut) stopScanner('OUT').then(() => startScanner('OUT'));
     });
 });
-
-

@@ -1,4 +1,4 @@
-#!/home/ion/Desktop/Untitled Folder/WEBSEMS- commit beta/lib/bin/python3
+#!/home/ion/Desktop/Untitled Folder/WEBSEMSF/lib/bin/python3
 
 import datetime
 import os

@@ -22,11 +22,17 @@ $(document).ready(function () {
                         userList.append(`
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 ${user.first_name} ${user.last_name} ${user.department}
-                                <button class="add-btn btn btn-primary btn-sm" 
+                                <button class="add-btn-in btn btn-success btn-sm" 
                                     data-id="${user.id}"
                                     data-name="${user.first_name} ${user.last_name}" 
                                     style="display:inline;">
-                                    <i class="fa-solid fa-plus"></i>Add Student
+                                    <i class="fa-solid fa-square-plus"></i>IN
+                                </button>
+                                <button class="add-btn-out btn btn-warning btn-sm" 
+                                    data-id="${user.id}"
+                                    data-name="${user.first_name} ${user.last_name}" 
+                                    style="display:inline;">
+                                    <i class="fa-regular fa-square-plus"></i>OUT
                                 </button>
                             </li>
 

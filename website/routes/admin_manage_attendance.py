@@ -75,6 +75,7 @@ def manage_attendance_get_data(activity_id):
                 'student_id': a.student_id if a.student_id else None,
                 'student_name': f"{a.user.first_name} {a.user.last_name}" if a.user and a.user.first_name and a.user.last_name else None,
                 'time_in': a.time_in.strftime('%I:%M %p') if a.time_in else None,  # Format datetime
+                'time_out': a.time_out.strftime('%I:%M %p') if a.time_out else None,  # Format datetime
                 'departments': f"{a.user.department.department_name}| {a.user.department.section}| {a.user.department.year}" if a.user else None,
             }
             all_attendees.append(schedule_data)  # Append the dictionary to the list
@@ -84,8 +85,6 @@ def manage_attendance_get_data(activity_id):
 
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)})
-
-
 
 #filter
 @admin_manage_attendance.route('/add_filter_users', methods=['GET'])
@@ -130,11 +129,11 @@ def add_filter_users():
         return jsonify({'success': False, 'message': str(e)})      
     
     
-#add attendeess
-@admin_manage_attendance.route('/add_attendees/<activity_id>/<user_id>', methods=['POST'])
+#add attendeess IN
+@admin_manage_attendance.route('/add_attendees_in/<activity_id>/<user_id>', methods=['POST'])
 @login_required
 @role_required_multiple('admin', 'ssg')
-def add_attendees(activity_id, user_id):
+def add_attendees_in(activity_id, user_id):
     try:
         if not activity_id:
             return jsonify({'success': False, 'message': 'No selected activity ❌'})
@@ -145,10 +144,9 @@ def add_attendees(activity_id, user_id):
             id=user_id
         ).first()
 
-        check_event_id=Sched_activities.query.get(activity_id)
-        if not check_event_id:
+        activity=Sched_activities.query.get(activity_id)
+        if not activity:
             return jsonify({'success': False, 'message': f'No events and activity selected ❌'})
-
 
         # Check if the attendees already exists
         already_attended = Attendance.query.filter_by(
@@ -157,7 +155,8 @@ def add_attendees(activity_id, user_id):
         ).first()
 
         if already_attended:
-            return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name} has already attended in the selected event activity ❌'})
+            if already_attended.time_in:
+                return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name} Already Time In ❌'})
 
         # Create a new attendance record
         attendeeAdd = Attendance(
@@ -168,16 +167,60 @@ def add_attendees(activity_id, user_id):
         db.session.add(attendeeAdd)
         db.session.commit()
 
-        return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} added successfully ✅'})
+        return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time In successfully ✅'})
 
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)})
     
-#add attendees using qrcode
-@admin_manage_attendance.route('/add_attendeesQR/<int:activity_id>/<string:student_id>', methods=['POST'])
+#add attendeess OUT
+@admin_manage_attendance.route('/add_attendees_out/<activity_id>/<user_id>', methods=['POST'])
 @login_required
-def add_attendance(activity_id,student_id):
+@role_required_multiple('admin', 'ssg')
+def add_attendees_out(activity_id, user_id):
+    try:
+        if not activity_id:
+            return jsonify({'success': False, 'message': 'No selected activity ❌'})
+        if not user_id:
+            return jsonify({'success': False, 'message': 'No selected Student ❌'})
+        
+        student=User.query.filter_by(
+            id=user_id
+        ).first()
+
+        activity=Sched_activities.query.get(activity_id)
+        if not activity:
+            return jsonify({'success': False, 'message': f'No events and activity selected ❌'})
+
+        # Check if the attendees already exists
+        already_attended = Attendance.query.filter_by(
+            activity_id=activity_id,
+            student_id=user_id  # Ensure that you use the correct column name
+        ).first()
+
+        if already_attended:
+            if already_attended.time_out:
+                return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name} Already Time Out ❌'})
+
+        if not already_attended:
+            return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name} Please Time In first ❌'})
+        
+        attendeeAdd = Attendance.query.filter_by(
+            activity_id=activity_id,
+            student_id=user_id
+            ).first()
+        attendeeAdd.time_out = datetime.now(manila_tz).replace(second=0,microsecond=0)
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time Out Successfully ✅'})
+    
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)})
+    
+#add attendees using qrcode IN
+@admin_manage_attendance.route('/add_attendeesQR_in/<int:activity_id>/<string:student_id>', methods=['POST'])
+@login_required
+def add_attendeesQR_in(activity_id,student_id):
     try:
         if not activity_id:
             return jsonify({'success': False, 'message': 'No selected activity ❌'})
@@ -185,7 +228,10 @@ def add_attendance(activity_id,student_id):
         if not student_id:
             return jsonify({'success': False, 'message': 'Invalid QR code data ❌'})
 
-
+        activity = Sched_activities.query.get(activity_id)
+        if not activity:
+            return jsonify({'success': False, 'message': 'Activity not found❌'})
+            
         student = User.query.filter_by(student_ID=student_id).first()
         if not student:
             return jsonify({'success': False, 'message': 'Student not found ❌'})
@@ -197,9 +243,8 @@ def add_attendance(activity_id,student_id):
         ).first()
 
         if already_attended:
-            return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name} has already attended in the selected event activity ❌'})
-
-
+            if already_attended.time_in:
+                return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name} Already Time In ❌'})
         # Create a new attendance record
         attendeeAdd = Attendance(
             activity_id=activity_id, 
@@ -209,13 +254,57 @@ def add_attendance(activity_id,student_id):
         db.session.add(attendeeAdd)
         db.session.commit()
 
-        return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} added successfully ✅'})
+        return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time In successfully ✅'})
 
     except Exception as e:
         db.session.rollback()
         return jsonify({'success': False, 'message': str(e)})
     
-#delete
+#add attendees using qrcode OUT
+@admin_manage_attendance.route('/add_attendeesQR_out/<int:activity_id>/<string:student_id>', methods=['POST'])
+@login_required
+def add_attendeesQR_out(activity_id,student_id):
+    try:
+        if not activity_id:
+            return jsonify({'success': False, 'message': 'No selected activity ❌'})
+        
+        if not student_id:
+            return jsonify({'success': False, 'message': 'Invalid QR code data ❌'})
+
+        activity = Sched_activities.query.get(activity_id)
+        if not activity:
+            return jsonify({'success': False, 'message': 'Activity not found❌'})
+            
+        student = User.query.filter_by(student_ID=student_id).first()
+        if not student:
+            return jsonify({'success': False, 'message': 'Student not found ❌'})
+
+        # Check if the attendees already exists
+        already_attended = Attendance.query.filter_by(
+            activity_id=activity_id,
+            student_id=student.id  # Ensure that you use the correct column name
+        ).first()
+
+        if already_attended:
+            if already_attended.time_out:
+                return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name} Already Time Out ❌'})
+
+        if not already_attended:
+            return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name} Please Time In first ❌'})
+        
+        attendeeAdd = Attendance.query.filter_by(
+            activity_id=activity_id,
+            student_id=student.id
+            ).first()
+        attendeeAdd.time_out = datetime.now(manila_tz).replace(second=0,microsecond=0)
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Time Out Successfully ✅'})
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)})
+    
+#delete ongoing
 @admin_manage_attendance.route('/delete_attendees/<int:attendee_id>', methods=['DELETE'])
 @login_required
 @role_required_multiple('admin','ssg')

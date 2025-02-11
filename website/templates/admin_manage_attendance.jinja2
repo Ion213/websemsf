@@ -80,24 +80,28 @@
                                 <i class="fa-solid fa-qrcode"></i> Use QR Code
                             </strong>
                             <br>
-                            <div class="mb-3">
-                                <div id="notification-container" style="
-                                    position: fixed;
-                                    top: 10px;
-                                    left: 50%;
-                                    transform: translateX(-50%);
-                                    width: 350px;
-                                    z-index: 9999;
-                                    text-align: center;
-                                "></div>
-                                <button id="scan-btn" class="btn btn-primary w-100">
-                                    <i class="fa-solid fa-camera"></i> Start Scanning
-                                </button>
-                            </div>
-                            <div class="camera-select-container">
-                                <select id="camera-select"></select>
-                            </div>
-                            <div style="margin: auto; display: block;" id="reader"></div>
+                                <div class="mb-3">
+                                    <div id="notification-container" style="
+                                        position: fixed;
+                                        top: 10px;
+                                        left: 50%;
+                                        transform: translateX(-50%);
+                                        width: 350px;
+                                        z-index: 9999;
+                                        text-align: center;
+                                    "></div>
+                                    <button id="scan-btn-in" class="btn btn-success w-100" style="display: inline;">
+                                        <i class="fa-solid fa-camera"></i> IN
+                                    </button>
+                                    <br>
+                                    <button id="scan-btn-out" class="btn btn-warning w-100" style="display: inline;">
+                                        <i class="fa-solid fa-camera"></i> OUT
+                                    </button>
+                                </div>
+                                <div class="camera-select-container">
+                                    <select id="camera-select"></select>
+                                </div>
+                                <div style="margin: auto; display: block;" id="reader"></div>
                         </div>
                     </div>
 
@@ -134,7 +138,8 @@
                                             <th>ACTIVITY NAME</th>
                                             <th>ATTENDEES NAME</th>
                                             <th>DEPARTMENTS</th>
-                                            <th>TIME ATTENDED</th>
+                                            <th>TIME IN</th>
+                                            <th>TIME OUT</th>
                                             <th>ACTION</th>
                                         </tr>
                                     </thead>
