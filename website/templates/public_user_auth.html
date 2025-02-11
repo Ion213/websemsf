@@ -1,0 +1,82 @@
+{% extends 'public_base_top_nav.html' %}
+
+{% block title %}
+    ADMIN LOGIN
+{% endblock %}
+
+{% block content %}
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">USER LOGIN</div>
+                    <div class="card-body">
+
+                        <form id="user_login_form" method="POST">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" name="emailT" id="email" placeholder="Enter Email">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" class="form-control" name="passwordT" id="password" placeholder="Enter Password">
+                            </div>
+                            <br/>
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div>
+
+        <!-- jinjacode flash message form flask-->
+        {% with messages = get_flashed_messages(with_categories=true)%}
+            {%if messages%}
+                {%for category, message in messages%}
+                <!-- sweet alert error-->
+                    {%if category =='login_error'%}
+                        <div id="myAlert" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{message}}
+                            <button type="button" class="close" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                    <!-- sweet alert success-->
+                    {%else%}
+                    <div id="myAlert" class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{message}}
+                        <button type="button" class="close" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    {%endif%}
+                {%endfor%}
+            {%endif%}
+        {% endwith %}
+        </div>
+
+
+    <script>
+
+                 //SWEET ALERT script
+                 document.addEventListener('DOMContentLoaded', function () {
+                    var closeButton = document.querySelector('#myAlert .close');
+                    closeButton.addEventListener('click', function () {
+                        var alert = document.querySelector('#myAlert');
+                        alert.remove();
+                    });
+                });
+        //id only can enter number script
+        function filterNonNumeric(event) {
+            var charCode = event.keyCode || event.which;
+            if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                event.preventDefault();
+            }
+        }
+
+
+
+    </script>
+{% endblock %}
