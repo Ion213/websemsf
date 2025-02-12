@@ -51,11 +51,10 @@ def render_fees_data(event_id):
         
         for f in fees:
 
-
             fees_data = {
                     'fees_name': f.fees_name,
                     'fees_amount': f.fees_amount,
-                    'id': f.id
+                    'id': f.id,
                 }
             all_fees.append(fees_data)
         

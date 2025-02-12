@@ -16,6 +16,7 @@ from flask_login import (
                          current_user
                          )
 
+
 from website.security.user_regulator import role_required_multiple
 
 from pytz import timezone
@@ -39,3 +40,5 @@ user_side = Blueprint('user_side', __name__)
 def user_side_render_template():
     user_id=current_user.id
     return render_template('user_profile_page.jinja2',user_id=user_id if user_id else None)
+
+

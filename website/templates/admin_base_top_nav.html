@@ -46,9 +46,12 @@
 <body>
 <div id="content">
 
-  <nav class="navbar navbar-expand-lg navbar-light border-dark bg-dark bg-opacity-25 text-white py-2">
+  <nav class="navbar navbar-expand-lg navbar-light border-dark text-white py-2" style="background-color:#b7c6bf">
     <div class="container-fluid ">
-        <a class="navbar-brand"><i class="fa-regular fa-user"></i> <h7>{{ current_user.email }}</h7></a>
+      <a class="navbar-brand" href="#">
+                <img src="{{ url_for('static', filename='logo/dtc.png') }}" alt="Logo" width="50" height="50">
+                DTC WEB-SEMS
+      </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -64,8 +67,8 @@
                   <li><a class="dropdown-item" href="{{ url_for('admin_manage_event.manage_event_render_template') }}"><i class="fa-solid fa-calendar-plus"></i> MANAGE EVENT</a></li>
                   <li><a class="dropdown-item" href="{{ url_for('admin_manage_schedule.manage_schedule_render_template') }}"><i class="fa-solid fa-calendar-check"></i> MANAGE EVENT SCHEDULE</a></li>
                   <li><a class="dropdown-item" href="{{ url_for('admin_manage_attendance.manage_attendance_render_template') }}"><i class="fa-solid fa-clipboard-user"></i> MANAGE EVENT ATTENDANCES</a></li>
-                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-money-check-dollar"></i> MANAGE EVENT Payments(comming soon)</a></li>
-                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-comment-dots"></i> MANAGE EVENT FeedBacks(comming soon)</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-money-check-dollar"></i> MANAGE EVENT Payments(coming soon)</a></li>
+                  <li><a class="dropdown-item" href="#"><i class="fa-solid fa-comment-dots"></i> MANAGE EVENT FeedBacks(coming soon)</a></li>
                 </ul>
             </li>
             {%endif%}
@@ -89,9 +92,18 @@
             </li>
             {%endif%}
 
-              <li class="nav-item">
-                <a class="nav-link" href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> LOG_OUT</a>
-              </li>
+            <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle"></i> {{ current_user.email }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li class="nav-item">
+                            <a class="nav-link" href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> LOG_OUT</a>
+                          </li>
+                        </ul>
+                    </li>
+
+              
             </ul>
         </div>
     </div>

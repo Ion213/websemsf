@@ -152,7 +152,16 @@
         ajax: `/render_fees_data/${selected_event_Id}`,
         columns: [
             { data: 'fees_name' },
-            { data: 'fees_amount' },
+            { data: 'fees_amount',
+                render: function(data, type, row) {
+                    return `
+                       
+                        <p>&#8369;${data}</p>
+                       
+                    `;
+                }
+
+             },
             {data: 'id',
                 render: function(data, type, row) {
                     return `

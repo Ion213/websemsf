@@ -381,7 +381,7 @@ def delete_attendees(attendee_id):
 @admin_manage_attendance.route('/get_completed_events/', methods=['GET'])
 def get_completed_events():
     # Fetch completed events
-    completed_events = Schedule.query.filter(func.date(Schedule.scheduled_date) == datetime.now(manila_tz).date()).all()
+    completed_events = Schedule.query.filter(func.date(Schedule.scheduled_date) < datetime.now(manila_tz).date()).all()
 
     events_data = []
     for event in completed_events:

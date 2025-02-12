@@ -8,7 +8,9 @@
 <style>
     .container { max-width: 2560px; max-height: 3660px;} 
     table { font-family: 'Helvetica', sans-serif;font-size: 12px; } 
-    body { background-color: hwb(201 80% 15%); }
+    body {
+        background-color: hsl(134, 36%, 58%);
+    }
     .camera-select-container {
         display: flex;
         align-items: center;
@@ -40,13 +42,13 @@
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="ongoing-tab" data-bs-toggle="tab" data-bs-target="#ongoing"
                 type="button" role="tab" aria-controls="ongoing" aria-selected="true">
-                    Ongoing Event
+                    Ongoing Event ⏳
                 </button>
             </li>
             <li class="nav-item" role="presentation">
                 <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed"
                 type="button" role="tab" aria-controls="completed" aria-selected="false">
-                    Completed Events
+                    Completed Events ✔️
                 </button>
             </li>
         </ul>

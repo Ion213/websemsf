@@ -9,10 +9,13 @@
 <style>
   .container { max-width: 2560px; max-height: 2260px;} 
   .table-responsive { overflow-x: auto; overflow-y:auto; } 
-  body { background-color: hwb(201 80% 15%); }
+  body {
+        background-color: hsl(134, 36%, 58%);
+    }
 </style>
 
 <div class="container mt-5">
+<h2 class="text-center fw-bold mb-4">📅 Manage Schedule</h2>
 	<div class="border p-3 bg-opacity-25 ">
 		<div class="row">
 			<div class="col-lg-2 col-md-2 mb-2 ">
@@ -56,19 +59,19 @@
 						<button class="nav-link active" id="upcoming-tab" data-bs-toggle="tab"
 						data-bs-target="#upcoming" type="button" role="tab" aria-controls="upcoming"
 						aria-selected="true">
-							Upcoming Events
+							Upcoming Events 🕒
 						</button>
 					</li>
 					<li class="nav-item" role="presentation">
 						<button class="nav-link" id="ongoing-tab" data-bs-toggle="tab" data-bs-target="#ongoing"
 						type="button" role="tab" aria-controls="ongoing" aria-selected="false">
-							Ongoing Events
+							Ongoing Events ⏳
 						</button>
 					</li>
 					<li class="nav-item" role="presentation">
 						<button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed"
 						type="button" role="tab" aria-controls="completed" aria-selected="false">
-							Completed Events
+							Completed Events ✔️
 						</button>
 					</li>
 				</ul>

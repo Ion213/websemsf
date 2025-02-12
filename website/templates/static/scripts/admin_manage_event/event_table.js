@@ -171,7 +171,8 @@ $(document).ready(function() {
                         <a href="${activityRenderUrl}" class="btn btn-light btn-sm">
                            <i class="fa-solid fa-edit"></i>
                         </a>
-                        <p style="display:inline;">${row.activity_count}</p>
+                        <p style="display:inline;">${row.activity_count}</p> |
+                        <p style="display:inline;">&#8369;${row.total_fines}</p>
                     `;
                 }
             },

@@ -51,6 +51,10 @@ def render_event_data():
 
             total_fees = sum(fee.fees_amount for fee in e.event_fees)
             formatted_fees = '{:,.2f}'.format(total_fees)
+
+            total_fines = sum(fine.fines for fine in e.event_activities)
+            formatted_fines = '{:,.2f}'.format(total_fines)
+
             activity_count = len(e.event_activities) 
 
             event_data = {
@@ -60,7 +64,8 @@ def render_event_data():
                 'date_created': e.date_created.strftime('%Y-%B-%d-%A %I:%M %p'),
                 'date_updated': e.date_updated.strftime('%Y-%B-%d-%A %I:%M %p') if e.date_updated else None,
                 'total_fees': formatted_fees,
-                'activity_count' : activity_count
+                'activity_count' : activity_count,
+                'total_fines':formatted_fines
             }
             
             all_events.append(event_data)

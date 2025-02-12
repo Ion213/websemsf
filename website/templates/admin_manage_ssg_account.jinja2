@@ -22,12 +22,13 @@
     overflow-wrap: break-word;
 }
 body {
-    background-color: hwb(201 80% 15%);
-}
+        background-color: hsl(134, 36%, 58%);
+    }
 </style>
 
 
 <div class="container mt-5">
+<h2 class="text-center fw-bold mb-4">👥 Manage SSG Account</h2>
     <div class="border p-3 bg-opacity-25 ">
         <div class="row">
             <!-- Add ssg Form (Smaller) -->
@@ -42,7 +43,13 @@ body {
                         </div>
                         <div class="mb-3">
                             <label for="passwordT" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="passwordT" name="passwordT" required>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="passwordT" name="passwordT" required minlength="6" maxlength="20">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePasswordSSG">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="form-text text-muted">Password must be between 6 and 20 characters.</small>
                         </div>
                         <button type="submit" class="btn btn-primary">
                             <i class="fa-solid fa-plus"></i>Add Account
@@ -94,7 +101,13 @@ body {
                         </div>
                         <div class="mb-3">
                             <label for="update_passwordT" class="form-label">Password</label>
-                            <input type="text" class="form-control" id="update_passwordT" name="update_passwordT" required>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="update_passwordT" name="update_passwordT" required minlength="6" maxlength="20">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePasswordUpdateSSG">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="form-text text-muted">Password must be between 6 and 20 characters.</small>
                         </div>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
                 </form>
@@ -113,5 +126,40 @@ body {
 <script src="{{ url_for('static', filename='scripts/admin_manage_ssg_account/ssg_account_update.js') }}">
 </script>
 
+
+<script>
+
+$(document).ready(function () {
+    $("#togglePasswordSSG").click(function () {
+        let passwordField = $("#passwordT");
+        let icon = $(this).find("i");
+
+        if (passwordField.attr("type") === "password") {
+            passwordField.attr("type", "text");
+            icon.removeClass("fa-eye").addClass("fa-eye-slash");
+        } else {
+            passwordField.attr("type", "password");
+            icon.removeClass("fa-eye-slash").addClass("fa-eye");
+        }
+    });
+});
+
+
+$(document).ready(function () {
+    $("#togglePasswordUpdateSSG").click(function () {
+        let passwordField = $("#update_passwordT");
+        let icon = $(this).find("i");
+
+        if (passwordField.attr("type") === "password") {
+            passwordField.attr("type", "text");
+            icon.removeClass("fa-eye").addClass("fa-eye-slash");
+        } else {
+            passwordField.attr("type", "password");
+            icon.removeClass("fa-eye-slash").addClass("fa-eye");
+        }
+    });
+});
+
+</script>
 
 {% endblock %}

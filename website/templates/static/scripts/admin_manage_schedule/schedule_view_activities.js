@@ -19,7 +19,15 @@ $(document).ready(function() {
                     { data: 'activity_name' },
                     { data: 'start_time'},
                     { data: 'end_time'}, 
-                    { data: 'fines' },
+                    { data: 'fines',
+                        render: function(data, type, row) {
+                            return `
+                               
+                                <p>&#8369;${data}</p>
+                               
+                            `;
+                        }
+                     },
 
                 ]
             });
@@ -47,7 +55,15 @@ $(document).ready(function() {
                         { data: 'activity_name' },
                         { data: 'start_time'},
                         { data: 'end_time'}, 
-                        { data: 'fines' },
+                        { data: 'fines',
+                            render: function(data, type, row) {
+                                return `
+                                   
+                                    <p>&#8369;${data}</p>
+                                   
+                                `;
+                            }
+                         },
     
                     ]
                 });
@@ -75,7 +91,15 @@ $(document).ready(function() {
                         { data: 'activity_name' },
                         { data: 'start_time'},
                         { data: 'end_time'}, 
-                        { data: 'fines' },
+                        { data: 'fines',
+                            render: function(data, type, row) {
+                                return `
+                                   
+                                    <p>&#8369;${data}</p>
+                                   
+                                `;
+                            }
+                         },
     
                     ]
                 });

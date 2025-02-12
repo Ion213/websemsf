@@ -150,7 +150,15 @@ $(document).ready(function () {
         columns: [
             { data: 'event_name' },
             { data: 'scheduled_date'},
-            { data: 'fees'},
+            { data: 'fees',
+                render: function(data, type, row) {
+                    return `
+                       
+                        <p>&#8369;${data}</p>
+                       
+                    `;
+                }
+            },
             { data: 'id', 
                     render: function(data, type, row) {
                         return `

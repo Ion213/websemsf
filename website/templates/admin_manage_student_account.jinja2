@@ -22,10 +22,11 @@
     overflow-wrap: break-word;
 }
 body {
-    background-color: hwb(201 80% 15%);
-}
+        background-color: hsl(134, 36%, 58%);
+    }
 </style>
 <div class="container mt-5">
+<h2 class="text-center fw-bold mb-4">🧑‍🎓 Manage Students Account</h2>
     <div class="border p-3 bg-opacity-25 ">
         <div class="row">
             <!-- Add student Form (Smaller) -->
@@ -36,7 +37,7 @@ body {
                     <form id="add_student_form" method="POST">
                         <div class="mb-3">
                             <label for="student_idT" class="form-label">Student ID</label>
-                            <input type="number" class="form-control" id="student_idT" name="student_idT" placeholder="GENERATE" required readonly>
+                            <input type="number" class="form-control" id="student_idT" name="student_idT" placeholder="GENERATE" min="100000" max="999999" maxlength="6" required>
                         </div>
                             <button type="button" class="btn btn-light" id="generate-btn">
                                 <i class="fa-solid fa-dice"></i>
@@ -55,7 +56,13 @@ body {
                         </div>
                         <div class="mb-3">
                             <label for="passwordT" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="passwordT" name="passwordT" required>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="passwordT" name="passwordT" required minlength="6" maxlength="20">
+                                <button class="btn btn-outline-secondary" type="button" id="togglePasswordAdd">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="form-text text-muted">Password must be between 6 and 20 characters.</small>
                         </div>
                         <div class="mb-3"
                             <label for="departmentT" class="form-label">Select Department</label>
@@ -120,7 +127,7 @@ body {
                         <input type="hidden" id="selected_student_account_idT" name="selected_student_account_idT">
                         <div class="mb-3">
                             <label for="update_student_idT" class="form-label">student ID</label>
-                            <input type="number" class="form-control" id="update_student_idT" name="update_student_idT" placeholder="GENERATE" required readonly>
+                            <input type="number" class="form-control" id="update_student_idT" name="update_student_idT" placeholder="GENERATE" min="100000" max="999999" maxlength="6" required>
                         </div>
                             <button type="button" class="btn btn-light" id="generate-btn">
                                 <i class="fa-solid fa-dice"></i>
@@ -139,7 +146,14 @@ body {
                         </div>
                         <div class="mb-3">
                             <label for="update_passwordT" class="form-label">Password</label>
-                            <input type="text" class="form-control" id="update_passwordT" name="update_passwordT" required>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="update_passwordT" name="update_passwordT" minlength="6" maxlength="20" required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePasswordUpdate">
+                                    <i class="fa fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="form-text text-muted">Password must be between 6 and 20 characters.</small>
+                        </div>
                         </div>
                         <div class="mb-3"
                             <label for="update_departmentT" class="form-label">Select Department</label>
@@ -171,4 +185,38 @@ body {
 <script src="{{ url_for('static', filename='scripts/admin_manage_student_account/student_account_update.js') }}">
 </script>
 
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js"></script>
+
+<script>
+$(document).ready(function () {
+    $("#togglePasswordAdd").click(function () {
+        let passwordField = $("#passwordT");
+        let icon = $(this).find("i");
+
+        if (passwordField.attr("type") === "password") {
+            passwordField.attr("type", "text");
+            icon.removeClass("fa-eye").addClass("fa-eye-slash");
+        } else {
+            passwordField.attr("type", "password");
+            icon.removeClass("fa-eye-slash").addClass("fa-eye");
+        }
+    });
+
+    $("#togglePasswordUpdate").click(function () {
+        let passwordField = $("#update_passwordT");
+        let icon = $(this).find("i");
+
+        if (passwordField.attr("type") === "password") {
+            passwordField.attr("type", "text");
+            icon.removeClass("fa-eye").addClass("fa-eye-slash");
+        } else {
+            passwordField.attr("type", "password");
+            icon.removeClass("fa-eye-slash").addClass("fa-eye");
+        }
+    });
+});
+
+</script>
 {% endblock %}

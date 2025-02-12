@@ -26,6 +26,7 @@ from datetime import datetime
 from sqlalchemy import or_,and_,extract
 from sqlalchemy.sql import func
 import random
+import re
 
 from website import db
 from website.models.database_models import Department,User
@@ -37,12 +38,10 @@ admin_manage_student_account = Blueprint('admin_manage_student_account', __name_
 @login_required
 @role_required('admin')
 def generate_student_id():
-
     while True:
-        random_id = str(random.randint(10**12, 10**13 - 1))
-        if not User.query.filter_by(student_ID=random_id).first():
-            break;
-    return jsonify({'random_id': random_id})
+        random_id = str(random.randint(100000, 999999))  # Generates exactly 6 digits
+        if not User.query.filter_by(student_ID=random_id).first():  # Ensures uniqueness
+            return jsonify({'random_id': random_id})
 
 #rendeder student account template
 @admin_manage_student_account.route('/manage_student_account_render_template', methods=['GET'])
@@ -115,7 +114,11 @@ def add_student_account():
         if not selected_department_idV:
             return jsonify({'success': False, 'message': 'Department cannot be empty'})
         
-        #hashed_password = generate_password_hash(passwordV, method='pbkdf2:sha512')
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, emailV):
+                return jsonify({'success': False, 'message': 'Invalid email format.'})
+        
+        hashed_password = generate_password_hash(passwordV, method='pbkdf2:sha512')
 
         existing_student_ID = User.query.filter_by(
             student_ID=student_IDV
@@ -141,7 +144,7 @@ def add_student_account():
             first_name=first_nameV, 
             last_name=last_nameV,
             email=emailV,
-            password=passwordV,
+            password=hashed_password,
             date_registered=datetime.now(manila_tz).replace(second=0,microsecond=0),
             department_id=selected_department_idV
             )
@@ -185,7 +188,7 @@ def update_student_account():
         update_passwordV = request.form.get('update_passwordT')
         update_departmentV= request.form.get('update_departmentT')
 
-
+        
         if not selected_student_account_idV:
             return jsonify({'success': False, 'message': 'student not found'})
         if not update_student_idV:
@@ -200,9 +203,13 @@ def update_student_account():
             return jsonify({'success': False, 'message': 'password cannot be empty'})
         if not update_departmentV:
             return jsonify({'success': False, 'message': 'department cannot be empty'})
-
-
         
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, update_emailV):
+                return jsonify({'success': False, 'message': 'Invalid email format.'})
+        
+        hashed_password = generate_password_hash(update_passwordV, method='pbkdf2:sha512')
+
         existing_student_name = User.query.filter(
             User.id != selected_student_account_idV,
             User.first_name == update_first_nameV,
@@ -226,7 +233,7 @@ def update_student_account():
         studentUp.first_name=update_first_nameV
         studentUp.last_name=update_last_nameV
         studentUp.email=update_emailV
-        studentUp.password=update_passwordV
+        studentUp.password=hashed_password
         studentUp.department_id=update_departmentV
         studentUp.date_updated=datetime.now(manila_tz).replace(microsecond=0,second=0)
         db.session.commit()
