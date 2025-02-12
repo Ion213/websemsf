@@ -16,7 +16,7 @@ $(document).ready(function () {
             } else {
                 data.forEach(event => {
                     let eventItem = `<li class="list-group-item d-flex justify-content-between align-items-center">
-                         <span>${event.event_name}</span>
+                         <span>${event.event_name}: ${event.scheduled_date}</span>
 
                         <div class="d-flex">
                             <button class="btn btn-sm btn-primary me-2 toggle-activities" data-event-id="${event.id}">
@@ -32,7 +32,7 @@ $(document).ready(function () {
                                 <button class="btn btn-sm btn-light view-attendance" 
                                             data-activity-id="${activity.id}" 
                                             data-activity-event="${event.event_name}"
-                                            data-activity-name="${activity.name}">${activity.name}
+                                            data-activity-name="${activity.name}">${activity.name}: ${activity.start_time}-${activity.end_time}
                                         <i class="fa-solid fa-table"></i>
                                     </button>
                                 <div class="d-flex gap-1">
@@ -253,10 +253,11 @@ $(document).ready(function () {
                 "dataSrc": "data"
             },
             "columns": [
-                { "data": "student_id" },
+                {"data":"activity_name"},
                 { "data": "student_name" },
                 { "data": "departments" },
                 { "data": "time_in" },
+                { "data": "time_out" },
                 { "data": "id",
                     render: function (data, type, row) {
                         return `

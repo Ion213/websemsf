@@ -79,7 +79,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: 'POST',
-            url: `/add_attendees/${activityID}/${user_Id}`,
+            url: `/add_attendees_in_out/${activityID}/${user_Id}`,
             success: function (response) {
                 if (response.success) {
                     completed_event_activity_attendance_table.ajax.reload(null, false);

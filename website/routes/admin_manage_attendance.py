@@ -37,8 +37,39 @@ admin_manage_attendance = Blueprint('admin_manage_attendance', __name__)
 @login_required
 @role_required_multiple('admin', 'ssg')
 def manage_attendance_render_template():
+    now = datetime.now(manila_tz).time()  # Get current Manila time as a time object
+
+    # Get today's ongoing event
     ongoing_event = Schedule.query.filter(
-        func.date(Schedule.scheduled_date) > datetime.now(manila_tz)
+        func.date(Schedule.scheduled_date) == datetime.now(manila_tz).date()
+    ).first()
+
+    # Default empty list
+    ongoing_activities = []
+
+    if ongoing_event:
+        # Fetch activities
+        ongoing_activities = Sched_activities.query.filter(
+            Sched_activities.sched_id == ongoing_event.id
+        ).all()
+
+        # Sort activities:
+        # - Ongoing first (end_time >= now), past last (end_time < now)
+        # - Within each group, sort by start_time
+        ongoing_activities.sort(key=lambda act: (act.end_time.time() < now, act.start_time.time()))
+
+    return render_template(
+        'admin_manage_attendance.jinja2',
+        ongoing_event=ongoing_event,
+        ongoing_activities=ongoing_activities,
+    )
+'''
+@admin_manage_attendance.route('/manage_attendance_render_template', methods=['GET'])
+@login_required
+@role_required_multiple('admin', 'ssg')
+def manage_attendance_render_template():
+    ongoing_event = Schedule.query.filter(
+        func.date(Schedule.scheduled_date) == datetime.now(manila_tz).date()
     ).first()
 
     # Ensure ongoing_activities is always initialized
@@ -53,8 +84,12 @@ def manage_attendance_render_template():
     return render_template(
         'admin_manage_attendance.jinja2',
         ongoing_event=ongoing_event,
-        ongoing_activities=ongoing_activities
+        ongoing_activities=ongoing_activities,
     )
+'''
+
+
+
 
 #-----------------ongoing events
 #get attendance data
@@ -338,25 +373,28 @@ def delete_attendees(attendee_id):
 
 
 
+
+
+
 #----------completed event-------------------------------
 #get completed events
-
-
 @admin_manage_attendance.route('/get_completed_events/', methods=['GET'])
 def get_completed_events():
-    now = datetime.now(manila_tz)
-
     # Fetch completed events
-    completed_events = Schedule.query.filter(Schedule.scheduled_date > now).all()
+    completed_events = Schedule.query.filter(func.date(Schedule.scheduled_date) == datetime.now(manila_tz).date()).all()
 
     events_data = []
     for event in completed_events:
         events_data.append({
             "id": event.id,
             "event_name": event.event_name,
-            "scheduled_date": event.scheduled_date.strftime('%Y-%m-%d'),
+            "scheduled_date": event.scheduled_date.strftime('%Y-%B-%d-%A'),
             "activities": [
-                {"id": activity.id, "name": activity.activity_name}
+                {"id": activity.id, 
+                 "name": activity.activity_name,
+                 "start_time":activity.start_time.strftime('%I:%M %p'),
+                "end_time":activity.end_time.strftime('%I:%M %p')
+                 }
                 for activity in event.scheduled_activities  # Fetch related activities
             ]
         })
@@ -372,10 +410,70 @@ def get_attendance(activity_id):
     for record in attendance_records:
         attendance_data.append({
             "student_id": record.student_id,
-            "time_in": record.time_in.strftime('%Y-%m-%d %H:%M')
+            "time_in": record.time_in.strftime('%I:%M %p'),
+            "time_out": record.time_out.strftime('%I:%M %p')
         })
 
     return jsonify(attendance_data)
+
+
+   
+#add attendeess IN - OUT
+@admin_manage_attendance.route('/add_attendees_in_out/<activity_id>/<user_id>', methods=['POST'])
+@login_required
+@role_required_multiple('admin', 'ssg')
+def add_attendees_in_out(activity_id, user_id):
+    try:
+        if not activity_id:
+            return jsonify({'success': False, 'message': 'No selected activity ❌'})
+        if not user_id:
+            return jsonify({'success': False, 'message': 'No selected Student ❌'})
+        
+        student=User.query.filter_by(
+            id=user_id
+        ).first()
+
+        activity=Sched_activities.query.get(activity_id)
+        if not activity:
+            return jsonify({'success': False, 'message': f'No events and activity selected ❌'})
+
+        # Check if the attendees already exists
+        already_attended = Attendance.query.filter_by(
+            activity_id=activity_id,
+            student_id=user_id  # Ensure that you use the correct column name
+        ).first()
+
+        if already_attended:
+
+            if already_attended.time_in and already_attended.time_out:
+                return jsonify({'success': False, 'message': f'{student.first_name} {student.last_name} Already attended ❌'})
+
+            if already_attended.time_in and not already_attended.time_out:
+                attendeeAdd = Attendance.query.filter_by(
+                        activity_id=activity_id,
+                        student_id=user_id
+                    ).first()
+                attendeeAdd.time_out = activity.end_time
+                db.session.commit()
+                return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Attended successfully ✅'})
+            
+
+            # Create a new attendance record
+        attendeeAdd = Attendance(
+                activity_id=activity_id, 
+                student_id=user_id,  # Ensure the column matches your model
+                time_in=activity.start_time,  # Set the correct time zone
+                time_out=activity.end_time
+            )
+        db.session.add(attendeeAdd)
+        db.session.commit()
+        return jsonify({'success': True, 'message': f'{student.first_name} {student.last_name} Attended successfully ✅'})
+
+        
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'message': str(e)})
 
 
    

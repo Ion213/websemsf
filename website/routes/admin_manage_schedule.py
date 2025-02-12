@@ -46,7 +46,7 @@ def manage_schedule_render_template():
 @role_required_multiple('admin', 'ssg')
 def render_schedule_data_upcoming():
     try:
-        schedule = Schedule.query.filter(Schedule.scheduled_date > datetime.now().date()).all()
+        schedule = Schedule.query.filter(func.date(Schedule.scheduled_date) > datetime.now(manila_tz).date()).all()
         all_schedule = []
         
         for s in schedule:
@@ -83,7 +83,7 @@ def render_schedule_data_upcoming():
 @role_required_multiple('admin', 'ssg')
 def render_schedule_data_ongoing():
     try:
-        schedule = Schedule.query.filter(Schedule.scheduled_date == datetime.now().date()).all()
+        schedule = Schedule.query.filter(func.date(Schedule.scheduled_date) == datetime.now(manila_tz).date()).all()
         all_schedule = []
         
         for s in schedule:
@@ -120,7 +120,7 @@ def render_schedule_data_ongoing():
 @role_required_multiple('admin', 'ssg')
 def render_schedule_data_completed():
     try:
-        schedule = Schedule.query.filter(Schedule.scheduled_date < datetime.now().date()).all()
+        schedule = Schedule.query.filter(func.date(Schedule.scheduled_date) < datetime.now(manila_tz).date()).all()
         all_schedule = []
         
         for s in schedule:

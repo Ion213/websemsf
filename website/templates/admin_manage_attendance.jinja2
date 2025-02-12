@@ -122,13 +122,13 @@
                                 <select id="activityComboBox" name="activityComboBox" class="form-select w-auto" required>
                                     {% if ongoing_event %}
                                         {% for activity in ongoing_activities %}
-                                            <option value="{{ activity.id }}">{{ activity.activity_name }}</option>
+                                            <option value="{{ activity.id }}">{{ activity.activity_name }} 🕐{{activity.start_time.strftime('%I:%M %p')}}-{{activity.end_time.strftime('%I:%M %p')}}</option>
                                         {% endfor %}
                                     {% endif %}
                                 </select>
                             </div>
                             {% if ongoing_event %}
-                                <p>{{ ongoing_event.scheduled_date.strftime('%Y-%B-%d-%A') }}</p>
+                                <p>📌 {{ ongoing_event.scheduled_date.strftime('%Y-%B-%d-%A') }}</p>
                             {% endif %}
                             <div class="table-responsive">
                                 <table class="table table-bordered table-striped table-light" id="ongoing_attendance_table"
@@ -176,10 +176,11 @@
                                     id="completed_event_activity_attendance_table" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th>Student ID</th>
+                                            <th>Activity Name</th>
                                             <th>Student Name</th>
                                             <th>Department</th>
                                             <th>Time In</th>
+                                            <th>Time Out</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>

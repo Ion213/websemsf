@@ -1,15 +1,15 @@
+const successSound = new Audio('/static/sounds/success.mp3'); // Change path as needed
+const failSound = new Audio('/static/sounds/invalid.mp3'); // Change path as needed
 
+function playSound(sound) {
+    sound.pause();  // Stop the current playback
+    sound.currentTime = 0;  // Reset the audio to the beginning
+    sound.play();  // Play the sound
+}
 //add IN
 $(document).ready(function() {
     // ADD attendees
-    const successSound = new Audio('/static/sounds/success.mp3'); // Change path as needed
-    const failSound = new Audio('/static/sounds/invalid.mp3'); // Change path as needed
 
-    function playSound(sound) {
-        sound.pause();  // Stop the current playback
-        sound.currentTime = 0;  // Reset the audio to the beginning
-        sound.play();  // Play the sound
-    }
 
     $('#user-list').on('click', '.add-btn-in', function(e) {
         e.preventDefault();  // Prevent the default action
@@ -50,7 +50,7 @@ $(document).ready(function() {
                         timerProgressBar: true
                     });
                 } else {
-                    failSound.play()
+                    playSound(failSound)
                     Swal.fire({
                         icon: 'warning',
                         title: '',
@@ -62,6 +62,7 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
+                playSound(failSound)
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -87,6 +88,7 @@ $(document).ready(function() {
         var name = $(this).data('name');
 
         if (!activity_Id) { // Corrected syntax
+            playSound(failSound)
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -106,7 +108,7 @@ $(document).ready(function() {
                     if (typeof ongoing_attendance_table !== "undefined") {
                         ongoing_attendance_table.ajax.reload(null, false);  // Reload table if defined
                     }
-
+                    playSound(successSound);
                     Swal.fire({
                         icon: 'success',
                         title: '',
@@ -116,6 +118,7 @@ $(document).ready(function() {
                         timerProgressBar: true
                     });
                 } else {
+                    playSound(failSound)
                     Swal.fire({
                         icon: 'warning',
                         title: '',
@@ -127,6 +130,7 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
+                playSound(failSound)
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',

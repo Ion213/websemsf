@@ -30,7 +30,7 @@ def admin_login_render_template():
                 password = request.form.get('passwordT')
                 
                 if not email or not password:
-                    flash(f'Email and Password Cannot be empty', category='login_error')
+                     return jsonify({'success': False, 'message': 'Please input email and password'})
                 #hashed_password = generate_password_hash(password, method='sha256')
                 valid_user= User.query.filter_by(
                     email=email,
@@ -40,17 +40,27 @@ def admin_login_render_template():
                 if valid_user:  # Replace with hashed password check
                     login_user(valid_user)
                     if valid_user.role == 'admin':
-                        flash('Log in successfully!', category='login_success')
-                        return redirect(url_for('admin_manage_event.manage_event_render_template'))
+                        return jsonify({
+                            'success': True, 
+                            'message': 'Login Successfully',
+                            'redirect_url': url_for('admin_manage_event.manage_event_render_template')
+                            })
                     elif valid_user.role == 'ssg':
-                        flash('Log in successfully!', category='login_success')
-                        return redirect(url_for('admin_manage_event.manage_event_render_template'))
+                        return jsonify({
+                            'success': True, 
+                            'message': 'Login Successfully',
+                            'redirect_url': url_for('admin_manage_event.manage_event_render_template')
+                            })
                     else:
-                        flash('Log in successfully!', category='login_success')
+                        return jsonify({
+                            'success': True, 
+                            'message': 'Login Successfully',
+                            'redirect_url': url_for('user_side.user_side_render_template')
+                            })
                 else:
-                    flash('Please input a valid User account', category='login_error')
+                    return jsonify({'success': False, 'message': 'Invalid credentials'})
             except Exception as e:
-                flash(f'{e}', category='login_error')
+                return jsonify({'success': False, 'message': f'Error {e}'})
 
     return render_template('public_user_auth.html')
 

@@ -63,6 +63,9 @@ def flask_app():
 
     #add routes here
 
+    from .routes.user_side import user_side
+    app.register_blueprint(user_side, url_prefix='/')
+
 #-----------------------------------------------  
     from .routes.public_views import public_views
     app.register_blueprint(public_views, url_prefix='/')
