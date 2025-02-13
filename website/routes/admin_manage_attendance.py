@@ -18,13 +18,19 @@ from flask_login import (
 
 from website.security.user_regulator import role_required_multiple
 
-from pytz import timezone
+from pytz import timezone as pytz_timezone
 from sqlalchemy import func
-from datetime import datetime,time
-manila_tz = timezone('Asia/Manila')
+from datetime import datetime,time,timezone
+manila_tz = pytz_timezone('Asia/Manila')
 from sqlalchemy import or_,and_,extract
 from website import db
 from website.models.database_models import Schedule,User,Department,Sched_activities,Attendance
+
+
+utc_now = datetime.utcnow().replace(tzinfo=timezone.utc)
+
+manila_time_now = utc_now.astimezone(manila_tz)
+
 
 
 admin_manage_attendance = Blueprint('admin_manage_attendance', __name__)
@@ -197,7 +203,7 @@ def add_attendees_in(activity_id, user_id):
         attendeeAdd = Attendance(
             activity_id=activity_id, 
             student_id=user_id,  # Ensure the column matches your model
-            time_in=datetime.now(manila_tz).replace(second=0, microsecond=0)  # Set the correct time zone
+            time_in=manila_time_now.replace(second=0, microsecond=0)  # Set the correct time zone
         )
         db.session.add(attendeeAdd)
         db.session.commit()
