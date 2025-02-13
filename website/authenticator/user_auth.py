@@ -37,12 +37,11 @@ def redirect_user_based_on_role(role):
     return redirect(url_for('user_auth.admin_login_render_template'))
 
 
-
-
 #create blueprint/routes
 user_auth = Blueprint('user_auth', __name__)
 @user_auth.route('/admin_login_render_template', methods=['GET', 'POST'])
 def admin_login_render_template():
+
     if current_user.is_authenticated:
         return redirect_user_based_on_role(current_user.role)
     
@@ -53,29 +52,23 @@ def admin_login_render_template():
 
             if not email or not password:
                 return jsonify({'success': False, 'message': 'Please input email and password'})
-
-            # Fetch user by email
-            valid_user = User.query.filter_by(email=email).first()
-
+            
+            # Fetch user by email and password
+            valid_user = User.query.filter_by(
+                email=email,
+                password=password
+                ).first()
+            
             if valid_user:
+                login_user(valid_user,remember=True)
                 if valid_user.role in ['admin', 'ssg']:  
-                    # Admin & SSG passwords are stored as plaintext (temporarily)
-                    password_match = valid_user.password == password
-                else:  
-                    # Students' passwords are hashed, so we check using `check_password_hash()`
-                    password_match = check_password_hash(valid_user.password, password)
-
-                if password_match:
-                    login_user(valid_user,remember=True)
-
-                    if valid_user.role in ['admin', 'ssg']:
-                        return jsonify({
+                    return jsonify({
                             'success': True, 
                             'message': 'Login Successfully',
                             'redirect_url': url_for('admin_manage_event.manage_event_render_template')
                         })
-                    elif valid_user.role == 'student':
-                        return jsonify({
+                else:
+                    return jsonify({
                             'success': True, 
                             'message': 'Login Successfully',
                             'redirect_url': url_for('user_side.user_side_render_template')
@@ -87,6 +80,7 @@ def admin_login_render_template():
             return jsonify({'success': False, 'message': f'Error {e}'})
 
     return render_template('public_user_auth.html')
+
 
 #logout user
 @user_auth.route('/user_logout', methods=['POST'])  # Ensure this is POST, not GET
@@ -106,6 +100,8 @@ def generate_student_id():
         random_id = str(random.randint(100000, 999999))  # Generates exactly 6 digits
         if not User.query.filter_by(student_ID=random_id).first():  # Ensures uniqueness
             return random_id
+
+
 
 # User Signup Route
 @user_auth.route('/user_signup', methods=['POST', 'GET'])
@@ -137,7 +133,8 @@ def user_signup():
             # Generate a unique student ID
             student_ID = generate_student_id()
             # Hash password before saving
-            hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+
+            #hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
 
             existing_student_ID = User.query.filter_by(
             student_ID=student_ID
@@ -166,7 +163,7 @@ def user_signup():
                 first_name=first_name,
                 last_name=last_name,
                 email=email,
-                password=hashed_password,  # Store hashed password
+                password=password,  # Store hashed password
                 date_registered=datetime.now(manila_tz).replace(second=0, microsecond=0),
                 department_id=department_id
             )

@@ -179,13 +179,13 @@ $(document).ready(function () {
             { data: 'first_name' },
             { data: 'last_name' },
             { data: 'email' },
-            { data: 'password',
-                render: function(data, type, row) {
-                        return data ? `
-                        ${data.substring(0, 6)}...
-                       ` : 
-                       'N/A';
-                  }
+            { data: 'password'
+                //render: function(data, type, row) {
+                //        return data ? `
+                //       ${data.substring(0, 6)}...
+                 //      ` : 
+                 //      'N/A';
+                //  }
             },
             {data: 'dep_id',
                 render: function(data, type, row) {

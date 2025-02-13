@@ -16,7 +16,7 @@ $(document).ready(function(){
             $('#update_first_nameT').val(first_name);
             $('#update_last_nameT').val(last_name);
             $('#update_emailT').val(email);
-            $('#update_passwordT').val(password.substring(0, 6));
+            $('#update_passwordT').val(password);
             $('#update_departmentT').val(dep_id);
 
             $('#update_student_account_modal').modal('show');

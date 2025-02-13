@@ -29,7 +29,7 @@ import random
 import re
 
 from website import db
-from website.models.database_models import Department,User
+from website.models.database_models import Department,User,Attendance
 
 admin_manage_student_account = Blueprint('admin_manage_student_account', __name__)
 
@@ -118,7 +118,7 @@ def add_student_account():
         if not re.match(email_pattern, emailV):
                 return jsonify({'success': False, 'message': 'Invalid email format.'})
         
-        hashed_password = generate_password_hash(passwordV, method='pbkdf2:sha512')
+        #hashed_password = generate_password_hash(passwordV, method='pbkdf2:sha512')
 
         existing_student_ID = User.query.filter_by(
             student_ID=student_IDV
@@ -144,7 +144,7 @@ def add_student_account():
             first_name=first_nameV, 
             last_name=last_nameV,
             email=emailV,
-            password=hashed_password,
+            password=passwordV,
             date_registered=datetime.now(manila_tz).replace(second=0,microsecond=0),
             department_id=selected_department_idV
             )
@@ -162,10 +162,13 @@ def add_student_account():
 @role_required('admin')
 def delete_student_account(student_id):
     try:
+
         # Fetch the event by ID and delete it
         studentDel = User.query.get(student_id)
         if not studentDel:
             return jsonify({'success': False, 'message': 'Student not found'})
+        # Delete attendance records associated with the student (fixing the relationship issue)
+        Attendance.query.filter(Attendance.user.has(id=student_id)).delete()
         db.session.delete(studentDel)
         db.session.commit()
         return jsonify({'success': True, 'message': 'Student Account deleted successfully'})
@@ -208,7 +211,7 @@ def update_student_account():
         if not re.match(email_pattern, update_emailV):
                 return jsonify({'success': False, 'message': 'Invalid email format.'})
         
-        hashed_password = generate_password_hash(update_passwordV, method='pbkdf2:sha512')
+        #hashed_password = generate_password_hash(update_passwordV, method='pbkdf2:sha512')
 
         existing_student_name = User.query.filter(
             User.id != selected_student_account_idV,
@@ -233,7 +236,7 @@ def update_student_account():
         studentUp.first_name=update_first_nameV
         studentUp.last_name=update_last_nameV
         studentUp.email=update_emailV
-        studentUp.password=hashed_password
+        studentUp.password=update_passwordV
         studentUp.department_id=update_departmentV
         studentUp.date_updated=datetime.now(manila_tz).replace(microsecond=0,second=0)
         db.session.commit()
